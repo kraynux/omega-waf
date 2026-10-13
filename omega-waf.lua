@@ -756,7 +756,7 @@ local function respond_sensitive_warning(path, exists)
         <div class="meta">Présence physique détectée : %s</div>
         <hr>
         <a href="/">?  Retour à l'index</a>
-        <div class="footer">Lighttpd · OMEGA-Serveur</div>
+        <div class="footer" ⚡ propulsé par <a href="https://github.kraynux.com/omega-waf">OMEGA-WAF</a></div>
     </div>
 </body>
 </html>

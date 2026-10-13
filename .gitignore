@@ -1,0 +1,14 @@
+# Etat d'execution genere par le script (jamais a commit - specifique a
+# chaque deploiement : IP bannies, compteurs de rate limit, journaux)
+var/log/*
+var/cache/*
+secure/waf/magnet-blocklist.txt
+
+# editeurs / sauvegardes
+*~
+*.bak
+*.swp
+
+# fichiers systeme
+.DS_Store
+Thumbs.db

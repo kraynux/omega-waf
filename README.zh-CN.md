@@ -91,8 +91,26 @@
 
 - 一个暴露 `mod_magnet` 兼容接口的 Web 服务器：
   - **lighttpd**，并启用 `mod_magnet` 模块（`server.modules += ("mod_magnet")`），或
-  - **omega-serv**，并安装 `magnet` 附加组件（`pip install -e ".[magnet]"`，依赖 `lupa` —— 参见 omega-serv 指南的 WAF Magnet 章节）。
-- 由宿主提供的内置 Lua 解释器（lighttpd 内置自己的 Lua；omega-serv 内置 `lupa`，两种情况下都无需系统级 `lua` 解释器）。
+  - **omega-serv**，并安装 `magnet` 附加组件（依赖 `lupa` —— 见下文及 omega-serv 指南的 WAF Magnet 章节）。
+- 由宿主提供的内置 Lua 解释器（lighttpd 内置自己的 Lua；omega-serv 内置 `lupa`，两种情况下都无需系统级 `lua` 解释器 —— `lupa` 以预编译 wheel 的形式分发，覆盖所有常见架构/Python 版本，无需本地编译，也无需系统级 Lua 头文件）。
+
+#### 安装 omega-serv 的 `magnet` 附加组件
+
+**务必在 `omega-serv/install.sh` 已创建的 `.venv` 内执行，切勿使用系统级 `pip`** —— 在某些发行版上（尤其是 Arch Linux），裸 `pip` 命令要么根本不存在（只有安装 `python-pip` 包才会提供，且并非默认安装），要么拒绝在虚拟环境之外安装任何东西（`error: externally-managed-environment`，PEP 668）：
+
+```bash
+cd /path/to/omega-serv
+
+# 方案 A —— 当前 shell 中已激活 venv
+source .venv/bin/activate
+pip install -e ".[magnet]"
+
+# 方案 B —— 不激活 venv（最具可移植性的写法：从不依赖系统 PATH 中
+# 是否存在 'pip'，因为 venv 自带的 python 总是包含自己的 pip）
+.venv/bin/python -m pip install -e ".[magnet]"
+```
+
+如果尚未运行过 `install.sh`（不存在 `.venv/`），请先运行它 —— 它会创建虚拟环境，并已在其中安装好 omega-serv 本身；之后只需用上面两条命令之一补充安装（可选的）`magnet` 附加组件即可。
 
 ### 部署步骤
 
@@ -279,6 +297,7 @@
 - **速率限制计数器似乎每次请求都重置**：这是请求之间 Lua 运行时不持久的症状（脚本每次执行都从空的 `rate_store` 重新开始）——在 omega-serv 下，检查 WAF Magnet 界面是否报告持久化运行时处于激活状态。
 - **合法 IP 被封禁**：查看 `blocklist_log` 和 `alerts_log` 以确定触发的规则，调整对应的模式或阈值，然后在 `blocklist_file` 中删除该 IP 所在行（内存缓存会在下次刷新时更新，最多在文件修改后 `blocklist_refresh_interval` 秒内生效）。
 - **合法的 SearXNG 搜索被拦截**：在调整专用速率限制阈值之前，先检查 `is_searxng_path()`（路径未被识别）。
+- **`pip install -e ".[magnet]"` 失败，提示 `pip: command not found` 或 `externally-managed-environment`**：该命令是在 omega-serv 的 `.venv` 之外执行的（某些发行版，尤其是 Arch Linux，并不直接暴露可用的系统级 `pip`）。请改为在 omega-serv 目录下使用 `.venv/bin/python -m pip install -e ".[magnet]"` —— 无论系统 `PATH` 中是否存在 `pip` 都能正常工作（参见[安装 omega-serv 的 `magnet` 附加组件](#安装-omega-serv-的-magnet-附加组件)）。
 
 ---
 

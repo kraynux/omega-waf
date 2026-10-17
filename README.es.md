@@ -91,8 +91,27 @@ Las firmas proporcionadas apuntan a familias de ataques comunes pero no constitu
 
 - Un servidor web que exponga una interfaz compatible con `mod_magnet`:
   - **lighttpd** con el módulo `mod_magnet` activado (`server.modules += ("mod_magnet")`), o
-  - **omega-serv** con el extra `magnet` instalado (`pip install -e ".[magnet]"`, dependencia `lupa` — ver la guía de omega-serv, sección WAF Magnet).
-- Un intérprete Lua embebido proporcionado por el anfitrión (lighttpd incluye su propio Lua; omega-serv incluye `lupa`, sin necesidad de intérprete `lua` del sistema en ningún caso).
+  - **omega-serv** con el extra `magnet` instalado (dependencia `lupa` — ver más abajo y la guía de omega-serv, sección WAF Magnet).
+- Un intérprete Lua embebido proporcionado por el anfitrión (lighttpd incluye su propio Lua; omega-serv incluye `lupa`, sin necesidad de intérprete `lua` del sistema en ningún caso — `lupa` se distribuye como rueda precompilada para todas las arquitecturas/versiones de Python habituales, sin compilación local ni cabeceras Lua del sistema necesarias).
+
+#### Instalar el extra `magnet` de omega-serv
+
+**Siempre desde el `.venv` ya creado por `omega-serv/install.sh`, nunca con un `pip` del sistema** — en algunas distribuciones (especialmente Arch Linux), el comando `pip` desnudo no existe (solo `python-pip` lo instala, y no siempre por defecto) o se niega a instalar nada fuera de un entorno virtual (`error: externally-managed-environment`, PEP 668):
+
+```bash
+cd /ruta/a/omega-serv
+
+# Opcion A - venv ya activado en la shell actual
+source .venv/bin/activate
+pip install -e ".[magnet]"
+
+# Opcion B - sin activar el venv (la forma mas portable: nunca depende
+# de que 'pip' este presente en el PATH del sistema, ya que el propio
+# python del venv siempre incluye el suyo)
+.venv/bin/python -m pip install -e ".[magnet]"
+```
+
+Si `install.sh` todavía no se ha ejecutado (no hay `.venv/`), ejecútelo primero — crea el entorno virtual e instala allí omega-serv mismo; solo queda añadir el extra `magnet` (opcional) con uno de los dos comandos anteriores.
 
 ### Puesta en marcha
 
@@ -279,6 +298,7 @@ Hacer este script compatible con uno de estos servidores requeriría escribir un
 - **Los contadores de rate limit parecen reiniciarse en cada petición**: síntoma de un runtime Lua no persistente entre peticiones (el script parte de un `rate_store` vacío en cada ejecución) — bajo omega-serv, verifica que la pantalla WAF Magnet indique un runtime persistente activo.
 - **Una IP legítima acaba baneada**: consulta `blocklist_log` y `alerts_log` para identificar la regla disparada, ajusta el patrón o el umbral correspondiente, y luego elimina la línea de la IP en `blocklist_file` (la caché en memoria se actualiza en la siguiente recarga, como máximo `blocklist_refresh_interval` segundos después de modificar el archivo).
 - **Las búsquedas legítimas de SearXNG son bloqueadas**: verifica `is_searxng_path()` (ruta no reconocida) antes de ajustar los umbrales de limitación de tasa dedicados.
+- **`pip install -e ".[magnet]"` falla con `pip: orden no encontrada` o `externally-managed-environment`**: el comando se escribió fuera del `.venv` de omega-serv (algunas distribuciones, especialmente Arch Linux, no exponen ningún `pip` del sistema directamente utilizable). Use `.venv/bin/python -m pip install -e ".[magnet]"` desde el directorio de omega-serv — funciona sin depender de que `pip` esté en el `PATH` del sistema (ver [Instalar el extra `magnet` de omega-serv](#instalar-el-extra-magnet-de-omega-serv)).
 
 ---
 

@@ -91,8 +91,27 @@ The provided signatures target common attack families but do not constitute exha
 
 - A web server exposing a `mod_magnet`-compatible interface:
   - **lighttpd** with the `mod_magnet` module enabled (`server.modules += ("mod_magnet")`), or
-  - **omega-serv** with the `magnet` extra installed (`pip install -e ".[magnet]"`, `lupa` dependency — see the omega-serv guide, WAF Magnet section).
-- An embedded Lua interpreter provided by the host (lighttpd embeds its own Lua; omega-serv embeds `lupa`, no system `lua` interpreter required in either case).
+  - **omega-serv** with the `magnet` extra installed (`lupa` dependency — see below and the omega-serv guide, WAF Magnet section).
+- An embedded Lua interpreter provided by the host (lighttpd embeds its own Lua; omega-serv embeds `lupa`, no system `lua` interpreter required in either case — `lupa` ships as a precompiled wheel for all common architectures/Python versions, no local compilation or system Lua headers needed).
+
+#### Installing omega-serv's `magnet` extra
+
+**Always from the `.venv` already created by `omega-serv/install.sh`, never with a system `pip`** — on some distributions (notably Arch Linux), the bare `pip` command either doesn't exist (only the `python-pip` package provides it, and not always by default) or refuses to install anything outside a virtual environment (`error: externally-managed-environment`, PEP 668):
+
+```bash
+cd /path/to/omega-serv
+
+# Option A - venv already activated in the current shell
+source .venv/bin/activate
+pip install -e ".[magnet]"
+
+# Option B - without activating the venv (the most portable form: never
+# depends on a 'pip' being present on the system PATH, since the venv's
+# own python always ships its own)
+.venv/bin/python -m pip install -e ".[magnet]"
+```
+
+If `install.sh` hasn't been run yet (no `.venv/` present), run it first — it creates the virtual environment and already installs omega-serv itself there; only the (optional) `magnet` extra then remains to be added with one of the two commands above.
 
 ### Setup
 
@@ -279,6 +298,7 @@ Making this script compatible with one of these servers would require writing a 
 - **Rate limit counters seem to reset on every request**: a symptom of a non-persistent Lua runtime across requests (the script starts over with an empty `rate_store` each execution) — under omega-serv, check that the WAF Magnet screen reports an active persistent runtime.
 - **A legitimate IP ends up banned**: check `blocklist_log` and `alerts_log` to identify the triggered rule, adjust the pattern or the corresponding threshold, then remove the IP's line in `blocklist_file` (the in-memory cache updates on the next refresh, at most `blocklist_refresh_interval` seconds after the file is modified).
 - **Legitimate SearXNG searches are blocked**: check `is_searxng_path()` (unrecognized path) before adjusting the dedicated rate limit thresholds.
+- **`pip install -e ".[magnet]"` fails with `pip: command not found` or `externally-managed-environment`**: the command was typed outside omega-serv's `.venv` (some distributions, notably Arch Linux, expose no directly usable system `pip`). Use `.venv/bin/python -m pip install -e ".[magnet]"` from omega-serv's directory instead — works regardless of whether `pip` is on the system `PATH` (see [Installing omega-serv's `magnet` extra](#installing-omega-servs-magnet-extra)).
 
 ---
 

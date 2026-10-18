@@ -115,11 +115,14 @@ pip install -e ".[magnet]"
 ### 部署步骤
 
 1. 将 `omega-waf.lua` 复制到服务器可读取的位置（例如 omega-serv 风格目录结构下的 `secure/waf/scripts/omega-waf.lua`，或原生 lighttpd 下的任意路径）。
-2. 创建默认配置所需的目录/文件（见[配置](#配置)）：
-   ```bash
-   mkdir -p secure/waf/magnet-rules.d var/log var/cache
-   touch secure/waf/magnet-blocklist.txt
-   ```
+2. 创建所需的目录/文件：
+   - **omega-serv**：无需任何操作，服务器启动时会自行创建这些目录（包括与服务账户共享的 `var/lib/waf/`）。
+   - **原生 lighttpd**：先将 5 个路径替换为绝对路径（见[原生 lighttpd 下的路径](#原生-lighttpd-下的路径)），然后创建目录，并让 lighttpd 账户可写（Debian/Ubuntu 上为 `www-data`，Arch 上为 `http`，Fedora/Alpine 上为 `lighttpd`）：
+     ```bash
+     sudo install -d -o www-data -g www-data -m 750 /var/lib/lighttpd/waf /var/log/lighttpd /var/cache/lighttpd
+     sudo install -d -m 755 /var/lib/lighttpd/waf/magnet-rules.d
+     sudo -u www-data touch /var/lib/lighttpd/waf/magnet-blocklist.txt
+     ```
 3. 在服务器配置中引用该脚本：
    - **lighttpd**：
      ```
@@ -136,7 +139,7 @@ pip install -e ".[magnet]"
 
 | 变量 | 作用 | 默认值 |
 |---|---|---|
-| `blocklist_file` | 永久封禁 IP 的文本文件（每行一个 IP，`#` 表示注释） | `secure/waf/magnet-blocklist.txt` |
+| `blocklist_file` | 永久封禁 IP 的文本文件（每行一个 IP，`#` 表示注释）——由脚本**写入** | `var/lib/waf/magnet-blocklist.txt` |
 | `waf_rules_dir` | 外部规则目录（包含 `whitelist_paths.txt`） | `secure/waf/magnet-rules.d/` |
 | `alerts_log` | 警报日志（检测、拒绝、超限等） | `var/log/waf-magnet-alerts.log` |
 | `blocklist_log` | 专门记录黑名单新增的日志 | `var/log/waf-magnet-blocklist.log` |
@@ -144,6 +147,7 @@ pip install -e ".[magnet]"
 | `enable_body_inspection` | 启用 POST 请求体检查 | `true` |
 | `enable_rate_limit` | 启用速率限制（全局 + SearXNG） | `true` |
 | `enable_auto_block` | 允许自动加入黑名单 | `true` |
+| `never_auto_block` | **永不**自动封禁的网络(请求本身仍会被拒绝并记录,只是不封禁);在 omega-serv 下,始终以服务器注入的列表(`omega_never_auto_block`)为准 | 本机、Tailscale、本地网络 |
 | `use_json_logs` | 将警报日志切换为 JSON 格式（否则为可读文本） | `false` |
 | `waf_score_threshold` | 拒绝 POST 请求所需的最低累加评分 | `5` |
 | `body_max_inspect` | 检查的最大请求体大小（字节） | `65536`（64 KB） |
@@ -158,7 +162,11 @@ pip install -e ".[magnet]"
 
 在 omega-serv 下，前 5 个路径（`blocklist_file`、`waf_rules_dir`、`alerts_log`、`blocklist_log`、`rate_store_file`）会自动替换为 WAF Magnet 界面中配置的路径（执行前注入的全局表 `omega_magnet_paths`）——上述硬编码值仅在该表不存在时作为后备使用。
 
-> ⚠️ **这 5 个默认值是照搬 omega-serv 自身的目录约定而来的**（`secure/waf/...`、`var/log/...`、`var/cache/...`，相对于项目式工作目录解析的相对路径）——它们并非中立的。在**原生 lighttpd** 下，由于不存在等效的目录约定，这些相对路径会相对于 lighttpd 进程运行时的工作目录解析，而该目录往往难以预测。建议将这 5 行替换为适合你自身部署的绝对路径，例如：
+> ℹ️ **2026-10-18 的变更**：`blocklist_file` 从 `secure/waf/magnet-blocklist.txt` 移至 `var/lib/waf/magnet-blocklist.txt`。脚本每次封禁都会**写入**该文件，而 omega-serv 的 systemd 服务只能在 `var/` 下写入：使用旧位置时，自动封禁从未被记录，且没有任何提示。omega-serv 会在启动时一次性接管旧文件（旧文件保留原位作为备份）；在 WAF Magnet 界面中设置的自定义路径永远不会被修改。
+
+### 原生 lighttpd 下的路径
+
+> ⚠️ **这 5 个默认值是照搬 omega-serv 自身的目录约定而来的**（`var/lib/waf/...`、`secure/waf/...`、`var/log/...`、`var/cache/...`，相对于项目式工作目录解析的相对路径）——它们并非中立的。在**原生 lighttpd** 下，由于不存在等效的目录约定，这些相对路径会相对于 lighttpd 进程运行时的工作目录（通常为 `/`）解析，而该目录往往难以预测。**请将这 5 行替换为适合你自身部署的绝对路径**，例如：
 > ```lua
 > local blocklist_file         = omega_paths.blocklist_file or "/var/lib/lighttpd/waf/magnet-blocklist.txt"
 > local waf_rules_dir          = omega_paths.rules_dir or "/var/lib/lighttpd/waf/magnet-rules.d/"
@@ -166,7 +174,14 @@ pip install -e ".[magnet]"
 > local blocklist_log          = omega_paths.blocklist_log or "/var/log/lighttpd/waf-magnet-blocklist.log"
 > local rate_store_file        = omega_paths.rate_store_file or "/var/cache/lighttpd/waf-magnet-rate_store.lua"
 > ```
-> 重启之前别忘了创建这些目录（并为运行 lighttpd 的用户授予必要的写入权限）。
+> 重启之前，请按以下权限创建这些目录（命令见[部署步骤](#部署步骤)第 2 步）：
+>
+> | 文件 | lighttpd 账户所需的访问权限 |
+> |---|---|
+> | `blocklist_file`、`alerts_log`、`blocklist_log`、`rate_store_file` | **写入**（文件及其所在目录） |
+> | `waf_rules_dir`（及 `whitelist_paths.txt`） | 只读 |
+>
+> 写入失败是**静默的**——脚本从不中断请求——：封禁未出现在 `blocklist_file` 中是唯一的症状。可用 `sudo -u www-data touch /var/lib/lighttpd/waf/magnet-blocklist.txt` 检查（请替换为实际账户）。如果 lighttpd 的 systemd 单元限制了写入（`ProtectSystem=strict`、`ReadWritePaths=`），请将这些目录加入其中。
 
 ---
 
@@ -217,6 +232,8 @@ pip install -e ".[magnet]"
 - **SearXNG**：键 `sx:<ip>`，每 `searx_rate_window` 秒 `searx_rate_max_req` 次请求，仅适用于已识别的搜索路由。
 
 渐进式升级（`record_suspicious_hit`）是一个与速率限制分开的机制：每一次非关键检测（非重复的敏感路径、扫描器 User-Agent、POST 请求体中的轻微命中）都会在 `suspicious_window` 秒的窗口内，为该 IP（键 `susp:<ip>`）递增一次计数。一旦在该窗口内达到 `suspicious_threshold` 次命中，该 IP 将被加入永久黑名单——既避免了因单次误报而直接封禁，又能对重犯者进行封禁。
+
+**永不封禁的网络**:`never_auto_block` 中的地址(本机、Tailscale `100.64.0.0/10`、本地 IPv4/IPv6 网络,包括 IPv4 映射的 IPv6 形式)永远不会触发升级,也不会被加入黑名单;被避免的封禁会在 `blocklist_log` 中记为一行 `BAN EVITE`(绝不会是 omega-jail 读取的 `AJOUT BLOCKLIST`)。CIDR 比较使用可移植 Lua 实现,支持 5.1 至 5.5 以及 LuaJIT。
 
 ---
 

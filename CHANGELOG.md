@@ -16,13 +16,41 @@ en production, donc toujours signalés explicitement, même mineurs.
 ## [Non publié]
 
 ### Ajouté
--
+- `never_auto_block` : réseaux jamais bannis automatiquement (hôte local, Tailscale
+  `100.64.0.0/10` et `fd7a:115c:a1e0::/48`, réseaux locaux IPv4/IPv6). Sous omega-serv,
+  la liste est injectée par le serveur (table globale `omega_never_auto_block`, même
+  réglage que son WAF natif) et prime sur la valeur du script.
+- Comparaison CIDR IPv4/IPv6 en Lua portable (5.1 à 5.5, LuaJIT) : `::`, zone
+  d'interface, forme IPv4-mappée-IPv6 comparée comme l'IPv4 qu'elle représente.
+- Ligne `BAN EVITE` dans `blocklist_log` quand un ban est évité (jamais une ligne
+  `AJOUT BLOCKLIST`, relue par omega-jail pour bannir au niveau réseau).
 
 ### Modifié
--
+- **Chemin par défaut** : `blocklist_file` passe de `secure/waf/magnet-blocklist.txt` à
+  `var/lib/waf/magnet-blocklist.txt` (le script écrit dans ce fichier ; sous omega-serv,
+  seul `var/` est inscriptible par le service systemd, aucun ban n'était donc enregistré).
+  omega-serv reprend l'ancien fichier une fois. En lighttpd natif, rien ne change si les
+  chemins ont déjà été remplacés par des chemins absolus.
+- README : section « Chemins en lighttpd natif » — chemins absolus, comptes
+  `www-data`/`http`/`lighttpd`, tableau des droits (écriture pour la blocklist, les deux
+  journaux et les compteurs ; lecture seule pour `waf_rules_dir`), échec d'écriture
+  silencieux et commande de vérification, unité systemd restreinte.
+- **Comportement par défaut** : une adresse de `never_auto_block` n'est plus jamais
+  ajoutée à la liste noire ni escaladée par la récidive. La requête elle-même reste
+  refusée et journalisée comme avant.
 
 ### Corrigé
--
+- **Signatures de chemins sensibles** : `^/%phpmyadmin%..+`, `^/%adminer%..+`,
+  `^/%wp%-admin%..+` et `^/%wp%-login%.php%..+` utilisaient par erreur les classes Lua
+  `%p` (ponctuation), `%a` (lettre) et `%w` (alphanumérique) : `/phpmyadmin.bak` n'était
+  jamais détecté, tandis que `/xdminer.old` ou `/1p-admin.zip` l'étaient. Motifs corrigés
+  en `^/phpmyadmin%..+`, `^/adminer%..+`, `^/wp%-admin%..+`, `^/wp%-login%.php%..+`.
+- Pied de page HTML de la page d'avertissement : balise `<div class="footer"` non fermée.
+- Commentaire de la section CMDI abîmé par un collage accidentel, restauré.
+
+### Limite connue (non modifiée)
+- Le script utilise `goto continue` : il exige Lua 5.2 ou plus récent, ou LuaJIT
+  (refusé par `luac5.1`). Les ajouts de cette version restent compatibles Lua 5.1.
 
 ---
 

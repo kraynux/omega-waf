@@ -116,11 +116,14 @@ If `install.sh` hasn't been run yet (no `.venv/` present), run it first — it c
 ### Setup
 
 1. Copy `omega-waf.lua` to a location readable by the server (e.g. `secure/waf/scripts/omega-waf.lua` for an omega-serv-style layout, or any path for native lighttpd).
-2. Create the directories/files expected by the default configuration (see [Configuration](#configuration)):
-   ```bash
-   mkdir -p secure/waf/magnet-rules.d var/log var/cache
-   touch secure/waf/magnet-blocklist.txt
-   ```
+2. Create the expected directories/files:
+   - **omega-serv**: nothing to do, the server creates the directories itself at startup (including `var/lib/waf/`, shared with the service account).
+   - **native lighttpd**: first replace the 5 paths with absolute paths (see [Paths under native lighttpd](#paths-under-native-lighttpd)), then create the directories and make them writable by the lighttpd account (`www-data` on Debian/Ubuntu, `http` on Arch, `lighttpd` on Fedora/Alpine):
+     ```bash
+     sudo install -d -o www-data -g www-data -m 750 /var/lib/lighttpd/waf /var/log/lighttpd /var/cache/lighttpd
+     sudo install -d -m 755 /var/lib/lighttpd/waf/magnet-rules.d
+     sudo -u www-data touch /var/lib/lighttpd/waf/magnet-blocklist.txt
+     ```
 3. Reference the script from the server configuration:
    - **lighttpd**:
      ```
@@ -137,7 +140,7 @@ All options are set by directly editing the local variables at the top of the fi
 
 | Variable | Role | Default value |
 |---|---|---|
-| `blocklist_file` | Text file of permanently banned IPs (one IP per line, `#` for comments) | `secure/waf/magnet-blocklist.txt` |
+| `blocklist_file` | Text file of permanently banned IPs (one IP per line, `#` for comments) — **written** by the script | `var/lib/waf/magnet-blocklist.txt` |
 | `waf_rules_dir` | Directory for external rules (contains `whitelist_paths.txt`) | `secure/waf/magnet-rules.d/` |
 | `alerts_log` | Alert log (detections, refusals, overruns) | `var/log/waf-magnet-alerts.log` |
 | `blocklist_log` | Dedicated log for blocklist additions | `var/log/waf-magnet-blocklist.log` |
@@ -145,6 +148,7 @@ All options are set by directly editing the local variables at the top of the fi
 | `enable_body_inspection` | Enables POST request body inspection | `true` |
 | `enable_rate_limit` | Enables rate limiting (global + SearXNG) | `true` |
 | `enable_auto_block` | Allows automatic blocklist additions | `true` |
+| `never_auto_block` | Networks **never** auto-banned (the request itself is still refused and logged, only the ban is skipped); under omega-serv, the list injected by the server (`omega_never_auto_block`) always wins | localhost, Tailscale, local networks |
 | `use_json_logs` | Switches alert logs to JSON (otherwise readable text) | `false` |
 | `waf_score_threshold` | Minimum cumulative score for a POST request to be refused | `5` |
 | `body_max_inspect` | Maximum inspected body size (bytes) | `65536` (64 KB) |
@@ -159,7 +163,11 @@ All options are set by directly editing the local variables at the top of the fi
 
 Under omega-serv, the first 5 paths (`blocklist_file`, `waf_rules_dir`, `alerts_log`, `blocklist_log`, `rate_store_file`) are automatically replaced by those configured in the WAF Magnet screen (global `omega_magnet_paths` table injected beforehand) — the hardcoded values above only serve as a fallback if that table is absent.
 
-> ⚠️ **These 5 default values are modeled on omega-serv's own directory convention** (`secure/waf/...`, `var/log/...`, `var/cache/...`, relative paths resolved against a project-style working directory) — they are not neutral. Under **native lighttpd**, where no equivalent directory convention exists, these relative paths resolve against the lighttpd process's working directory at runtime, which is rarely predictable. It is recommended to replace these 5 lines with absolute paths suited to your installation, for example:
+> ℹ️ **Change of 2026-10-18**: `blocklist_file` moves from `secure/waf/magnet-blocklist.txt` to `var/lib/waf/magnet-blocklist.txt`. The script **writes** to this file on every ban, and omega-serv's systemd service can only write under `var/`: with the old location, no automatic ban was ever recorded, without any message. omega-serv takes over the old file once at startup (the old one stays in place as a backup); a custom path set in the WAF Magnet screen is never changed.
+
+### Paths under native lighttpd
+
+> ⚠️ **These 5 default values are modeled on omega-serv's own directory convention** (`var/lib/waf/...`, `secure/waf/...`, `var/log/...`, `var/cache/...`, relative paths resolved against a project-style working directory) — they are not neutral. Under **native lighttpd**, where no equivalent directory convention exists, these relative paths resolve against the lighttpd process's working directory at runtime (often `/`), which is rarely predictable. **Replace these 5 lines with absolute paths** suited to your installation, for example:
 > ```lua
 > local blocklist_file         = omega_paths.blocklist_file or "/var/lib/lighttpd/waf/magnet-blocklist.txt"
 > local waf_rules_dir          = omega_paths.rules_dir or "/var/lib/lighttpd/waf/magnet-rules.d/"
@@ -167,7 +175,14 @@ Under omega-serv, the first 5 paths (`blocklist_file`, `waf_rules_dir`, `alerts_
 > local blocklist_log          = omega_paths.blocklist_log or "/var/log/lighttpd/waf-magnet-blocklist.log"
 > local rate_store_file        = omega_paths.rate_store_file or "/var/cache/lighttpd/waf-magnet-rate_store.lua"
 > ```
-> Don't forget to create these directories (and grant the write permissions needed by the user lighttpd runs as) before restarting.
+> Before restarting, create these directories (commands in step 2 of [Setup](#setup)) with these permissions:
+>
+> | File | Access needed by the lighttpd account |
+> |---|---|
+> | `blocklist_file`, `alerts_log`, `blocklist_log`, `rate_store_file` | **write** (the file and its directory) |
+> | `waf_rules_dir` (and `whitelist_paths.txt`) | read only |
+>
+> A write failure is **silent** — the script never breaks the request —: a ban that does not appear in `blocklist_file` is the only symptom. Check with `sudo -u www-data touch /var/lib/lighttpd/waf/magnet-blocklist.txt` (adjust the account). If lighttpd's systemd unit restricts writes (`ProtectSystem=strict`, `ReadWritePaths=`), add these directories to it.
 
 ---
 
@@ -218,6 +233,8 @@ Two independent rate limiters, based on in-memory counters persisted to disk (si
 - **SearXNG**: key `sx:<ip>`, `searx_rate_max_req` requests per `searx_rate_window` seconds, only on recognized search routes.
 
 Progressive escalation (`record_suspicious_hit`) is a mechanism separate from rate limiting: each non-critical detection (non-repeating sensitive path, scanner User-Agent, minor POST body hit) increments a per-IP counter (key `susp:<ip>`) over a `suspicious_window`-second window. Once `suspicious_threshold` hits are reached within that window, the IP is added to the permanent blocklist — avoids a hard ban on a single false positive while still banning repeat offenders.
+
+**Networks never banned**: an address in `never_auto_block` (localhost, Tailscale `100.64.0.0/10`, local IPv4/IPv6 networks, IPv4-mapped IPv6 form included) never triggers escalation nor a blocklist addition; a skipped ban is traced by a `BAN EVITE` line in `blocklist_log` (never `AJOUT BLOCKLIST`, which omega-jail reads). Portable Lua CIDR matching, from 5.1 to 5.5 and LuaJIT.
 
 ---
 

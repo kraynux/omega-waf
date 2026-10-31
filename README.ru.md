@@ -8,8 +8,7 @@
 
 **Прикладной файрвол mod_magnet (автономный Lua-скрипт)**
 
-> Разработано **kraynux** для **Omega-server**
-> [kraynux.snake-mackarel.ts.net](https://kraynux.snake-mackarel.ts.net)
+> Разработано [kraynux](https://github.com/kraynux) для [Omega-Server](https://kraynux.snake-mackarel.ts.net)   
 
 Официальная страница: [OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/)
 

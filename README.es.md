@@ -8,8 +8,7 @@
 
 **Firewall de aplicación mod_magnet (script Lua autónomo)**
 
-> Elaborado por **kraynux** para **Omega-server**
-> [kraynux.snake-mackarel.ts.net](https://kraynux.snake-mackarel.ts.net)
+> Elaborado por [kraynux](https://github.com/kraynux) para [Omega-Server](https://kraynux.snake-mackarel.ts.net)   
 
 Página oficial: [OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/)
 

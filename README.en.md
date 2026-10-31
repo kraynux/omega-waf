@@ -8,8 +8,7 @@
 
 **mod_magnet application firewall (standalone Lua script)**
 
-> Built by **kraynux** for **Omega-server**
-> [kraynux.snake-mackarel.ts.net](https://kraynux.snake-mackarel.ts.net)
+> Built by [kraynux](https://github.com/kraynux) for [Omega-Server](https://kraynux.snake-mackarel.ts.net)   
 
 Official page: [OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/)
 

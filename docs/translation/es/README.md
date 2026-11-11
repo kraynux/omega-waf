@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2026 kraynux - kraynux@proton.me - Licencia MIT (ver archivo LICENSE) -->
+<!-- Copyright (c) 2026 kraynux - kraynux@proton.me - Licence MIT (voir fichier LICENSE) -->
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/kraynux/kraynux/refs/heads/main/docs/assets/omega-waf.png" alt="Omega-Waf" width="384">
@@ -10,15 +10,16 @@
 
 > Elaborado por [kraynux](https://github.com/kraynux) para [Omega-Server](https://kraynux.snake-mackarel.ts.net)   
 
-Página oficial: [OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/)
+Página oficial: [OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/translation/es/)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../../LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Linux-informational.svg)](https://www.linux.org/)
 [![Lua](https://img.shields.io/badge/Lua-5.1%20%2F%20LuaJIT-blue.svg)](https://www.lua.org/)
 [![Compatible](https://img.shields.io/badge/Compatible-lighttpd%20mod__magnet%20%7C%20omega--serv-cyan.svg)](#compatibilidad)
 
-**Idiomas:**
-[Français](README.md) · [English](README.en.md) · [Español](README.es.md) · [Русский](README.ru.md) · [中文](README.zh-CN.md)
+🌐 Documentación disponible en **17 idiomas**.  
+**Idiomas:**  
+<img src="https://flagcdn.com/w20/fr.png" alt="Français" style="height:14px;"> [Français](../../../README.md) · <img src="https://flagcdn.com/w20/gb.png" alt="English" style="height:14px;"> [English](../en/README.md) · <img src="https://flagcdn.com/w20/es.png" alt="Español" style="height:14px;"> [Español](README.md) · <img src="https://flagcdn.com/w20/br.png" alt="Português (Brasil)" style="height:14px;"> [Português (Brasil)](../pt-BR/README.md) · <img src="https://flagcdn.com/w20/it.png" alt="Italiano" style="height:14px;"> [Italiano](../it/README.md) · <img src="https://flagcdn.com/w20/de.png" alt="Deutsch" style="height:14px;"> [Deutsch](../de/README.md) · <img src="https://flagcdn.com/w20/nl.png" alt="Nederlands" style="height:14px;"> [Nederlands](../nl/README.md) · <img src="https://flagcdn.com/w20/pl.png" alt="Polski" style="height:14px;"> [Polski](../pl/README.md) · <img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="height:14px;"> [Русский](../ru/README.md) · <img src="https://flagcdn.com/w20/cn.png" alt="中文" style="height:14px;"> [中文](../zh-CN/README.md) · <img src="https://flagcdn.com/w20/vn.png" alt="Tiếng Việt" style="height:14px;"> [Tiếng Việt](../vi/README.md) · <img src="https://flagcdn.com/w20/th.png" alt="ไทย" style="height:14px;"> [ไทย](../th/README.md) · <img src="https://flagcdn.com/w20/id.png" alt="Bahasa Indonesia" style="height:14px;"> [Bahasa Indonesia](../id/README.md) · <img src="https://flagcdn.com/w20/jp.png" alt="日本語" style="height:14px;"> [日本語](../ja/README.md) · <img src="https://flagcdn.com/w20/kr.png" alt="한국어" style="height:14px;"> [한국어](../ko/README.md) · <img src="https://flagcdn.com/w20/in.png" alt="हिन्दी" style="height:14px;"> [हिन्दी](../hi/README.md) · <img src="https://flagcdn.com/w20/ae.png" alt="العربية" style="height:14px;"> [العربية](../ar/README.md)
 
 ---
 
@@ -235,6 +236,8 @@ La escalada progresiva (`record_suspicious_hit`) es un mecanismo separado de la 
 
 **Redes nunca baneadas**: una dirección de `never_auto_block` (host local, Tailscale `100.64.0.0/10`, redes locales IPv4/IPv6, incluida la forma IPv4 mapeada en IPv6) nunca provoca escalada ni adición a la lista negra; un baneo evitado queda registrado con una línea `BAN EVITE` en `blocklist_log` (nunca `AJOUT BLOCKLIST`, que lee omega-jail). Comparación CIDR en Lua portable, de 5.1 a 5.5 y LuaJIT.
 
+**Modo log-only de omega-serv**: cuando el WAF de omega-serv está en `log-only`, el script no aplica ningún bloqueo (ni lista negra ni línea `AJOUT BLOCKLIST`, por tanto ningún bloqueo de red por fail2ban); una línea `BAN EVITE` lo registra. Si la lista negra no puede escribirse, una línea `ECHEC BLOCKLIST` sustituye a `AJOUT BLOCKLIST`.
+
 ---
 
 ## Persistencia
@@ -320,7 +323,7 @@ Hacer este script compatible con uno de estos servidores requeriría escribir un
 
 ## Licencia
 
-Omega-Waf se distribuye bajo licencia **MIT**. Consulta el archivo [`LICENSE`](LICENSE) para el texto completo.
+Omega-Waf se distribuye bajo licencia **MIT**. Consulta el archivo [`LICENSE`](../../../LICENSE) para el texto completo.
 
 ---
 

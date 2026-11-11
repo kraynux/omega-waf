@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2026 kraynux - kraynux@proton.me - MIT 许可证（见 LICENSE 文件） -->
+<!-- Copyright (c) 2026 kraynux - kraynux@proton.me - Licence MIT (voir fichier LICENSE) -->
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/kraynux/kraynux/refs/heads/main/docs/assets/omega-waf.png" alt="Omega-Waf" width="384">
@@ -10,15 +10,16 @@
 
 > 由 [kraynux](https://github.com/kraynux) 为 [Omega-Server](https://kraynux.snake-mackarel.ts.net) 打造   
 
-官方页面：[OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/)
+官方页面：[OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/translation/zh-CN/)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../../LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Linux-informational.svg)](https://www.linux.org/)
 [![Lua](https://img.shields.io/badge/Lua-5.1%20%2F%20LuaJIT-blue.svg)](https://www.lua.org/)
 [![Compatible](https://img.shields.io/badge/Compatible-lighttpd%20mod__magnet%20%7C%20omega--serv-cyan.svg)](#兼容性)
 
-**语言：**
-[Français](README.md) · [English](README.en.md) · [Español](README.es.md) · [Русский](README.ru.md) · [中文](README.zh-CN.md)
+🌐 文档提供 **17 种语言**版本。  
+**语言：**  
+<img src="https://flagcdn.com/w20/fr.png" alt="Français" style="height:14px;"> [Français](../../../README.md) · <img src="https://flagcdn.com/w20/gb.png" alt="English" style="height:14px;"> [English](../en/README.md) · <img src="https://flagcdn.com/w20/es.png" alt="Español" style="height:14px;"> [Español](../es/README.md) · <img src="https://flagcdn.com/w20/br.png" alt="Português (Brasil)" style="height:14px;"> [Português (Brasil)](../pt-BR/README.md) · <img src="https://flagcdn.com/w20/it.png" alt="Italiano" style="height:14px;"> [Italiano](../it/README.md) · <img src="https://flagcdn.com/w20/de.png" alt="Deutsch" style="height:14px;"> [Deutsch](../de/README.md) · <img src="https://flagcdn.com/w20/nl.png" alt="Nederlands" style="height:14px;"> [Nederlands](../nl/README.md) · <img src="https://flagcdn.com/w20/pl.png" alt="Polski" style="height:14px;"> [Polski](../pl/README.md) · <img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="height:14px;"> [Русский](../ru/README.md) · <img src="https://flagcdn.com/w20/cn.png" alt="中文" style="height:14px;"> [中文](README.md) · <img src="https://flagcdn.com/w20/vn.png" alt="Tiếng Việt" style="height:14px;"> [Tiếng Việt](../vi/README.md) · <img src="https://flagcdn.com/w20/th.png" alt="ไทย" style="height:14px;"> [ไทย](../th/README.md) · <img src="https://flagcdn.com/w20/id.png" alt="Bahasa Indonesia" style="height:14px;"> [Bahasa Indonesia](../id/README.md) · <img src="https://flagcdn.com/w20/jp.png" alt="日本語" style="height:14px;"> [日本語](../ja/README.md) · <img src="https://flagcdn.com/w20/kr.png" alt="한국어" style="height:14px;"> [한국어](../ko/README.md) · <img src="https://flagcdn.com/w20/in.png" alt="हिन्दी" style="height:14px;"> [हिन्दी](../hi/README.md) · <img src="https://flagcdn.com/w20/ae.png" alt="العربية" style="height:14px;"> [العربية](../ar/README.md)
 
 ---
 
@@ -234,6 +235,8 @@ pip install -e ".[magnet]"
 
 **永不封禁的网络**:`never_auto_block` 中的地址(本机、Tailscale `100.64.0.0/10`、本地 IPv4/IPv6 网络,包括 IPv4 映射的 IPv6 形式)永远不会触发升级,也不会被加入黑名单;被避免的封禁会在 `blocklist_log` 中记为一行 `BAN EVITE`(绝不会是 omega-jail 读取的 `AJOUT BLOCKLIST`)。CIDR 比较使用可移植 Lua 实现,支持 5.1 至 5.5 以及 LuaJIT。
 
+**omega-serv 的 log-only 模式**：当 omega-serv 的 WAF 处于 `log-only` 时，脚本不设置任何封禁（不写黑名单，也不写 `AJOUT BLOCKLIST` 行，因此 fail2ban 不会做网络封禁）；由一行 `BAN EVITE` 记录。如果黑名单无法写入，则以 `ECHEC BLOCKLIST` 行代替 `AJOUT BLOCKLIST`。
+
 ---
 
 ## 持久化
@@ -319,7 +322,7 @@ pip install -e ".[magnet]"
 
 ## 许可证
 
-Omega-Waf 基于 **MIT** 许可证发布。完整文本请参见 [`LICENSE`](LICENSE) 文件。
+Omega-Waf 基于 **MIT** 许可证发布。完整文本请参见 [`LICENSE`](../../../LICENSE) 文件。
 
 ---
 

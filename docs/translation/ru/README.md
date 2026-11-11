@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2026 kraynux - kraynux@proton.me - Лицензия MIT (см. файл LICENSE) -->
+<!-- Copyright (c) 2026 kraynux - kraynux@proton.me - Licence MIT (voir fichier LICENSE) -->
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/kraynux/kraynux/refs/heads/main/docs/assets/omega-waf.png" alt="Omega-Waf" width="384">
@@ -10,15 +10,16 @@
 
 > Разработано [kraynux](https://github.com/kraynux) для [Omega-Server](https://kraynux.snake-mackarel.ts.net)   
 
-Официальная страница: [OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/)
+Официальная страница: [OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/translation/ru/)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../../LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Linux-informational.svg)](https://www.linux.org/)
 [![Lua](https://img.shields.io/badge/Lua-5.1%20%2F%20LuaJIT-blue.svg)](https://www.lua.org/)
 [![Compatible](https://img.shields.io/badge/Compatible-lighttpd%20mod__magnet%20%7C%20omega--serv-cyan.svg)](#совместимость)
 
-**Языки:**
-[Français](README.md) · [English](README.en.md) · [Español](README.es.md) · [Русский](README.ru.md) · [中文](README.zh-CN.md)
+🌐 Документация доступна на **17 языках**.  
+**Языки:**  
+<img src="https://flagcdn.com/w20/fr.png" alt="Français" style="height:14px;"> [Français](../../../README.md) · <img src="https://flagcdn.com/w20/gb.png" alt="English" style="height:14px;"> [English](../en/README.md) · <img src="https://flagcdn.com/w20/es.png" alt="Español" style="height:14px;"> [Español](../es/README.md) · <img src="https://flagcdn.com/w20/br.png" alt="Português (Brasil)" style="height:14px;"> [Português (Brasil)](../pt-BR/README.md) · <img src="https://flagcdn.com/w20/it.png" alt="Italiano" style="height:14px;"> [Italiano](../it/README.md) · <img src="https://flagcdn.com/w20/de.png" alt="Deutsch" style="height:14px;"> [Deutsch](../de/README.md) · <img src="https://flagcdn.com/w20/nl.png" alt="Nederlands" style="height:14px;"> [Nederlands](../nl/README.md) · <img src="https://flagcdn.com/w20/pl.png" alt="Polski" style="height:14px;"> [Polski](../pl/README.md) · <img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="height:14px;"> [Русский](README.md) · <img src="https://flagcdn.com/w20/cn.png" alt="中文" style="height:14px;"> [中文](../zh-CN/README.md) · <img src="https://flagcdn.com/w20/vn.png" alt="Tiếng Việt" style="height:14px;"> [Tiếng Việt](../vi/README.md) · <img src="https://flagcdn.com/w20/th.png" alt="ไทย" style="height:14px;"> [ไทย](../th/README.md) · <img src="https://flagcdn.com/w20/id.png" alt="Bahasa Indonesia" style="height:14px;"> [Bahasa Indonesia](../id/README.md) · <img src="https://flagcdn.com/w20/jp.png" alt="日本語" style="height:14px;"> [日本語](../ja/README.md) · <img src="https://flagcdn.com/w20/kr.png" alt="한국어" style="height:14px;"> [한국어](../ko/README.md) · <img src="https://flagcdn.com/w20/in.png" alt="हिन्दी" style="height:14px;"> [हिन्दी](../hi/README.md) · <img src="https://flagcdn.com/w20/ae.png" alt="العربية" style="height:14px;"> [العربية](../ar/README.md)
 
 ---
 
@@ -235,6 +236,8 @@ pip install -e ".[magnet]"
 
 **Сети, которые никогда не банятся**: адрес из `never_auto_block` (локальный хост, Tailscale `100.64.0.0/10`, локальные сети IPv4/IPv6, включая форму IPv4, отображённую в IPv6) никогда не вызывает эскалацию и не попадает в чёрный список; пропущенный бан отмечается строкой `BAN EVITE` в `blocklist_log` (никогда не `AJOUT BLOCKLIST`, которую читает omega-jail). Сравнение CIDR на переносимом Lua — от 5.1 до 5.5 и LuaJIT.
 
+**Режим log-only в omega-serv**: когда WAF omega-serv работает в режиме `log-only`, скрипт не ставит бан (ни записи в чёрном списке, ни строки `AJOUT BLOCKLIST`, а значит, и сетевого бана через fail2ban); это фиксирует строка `BAN EVITE`. Если чёрный список не удаётся записать, строка `ECHEC BLOCKLIST` заменяет `AJOUT BLOCKLIST`.
+
 ---
 
 ## Персистентность
@@ -320,7 +323,7 @@ pip install -e ".[magnet]"
 
 ## Лицензия
 
-Omega-Waf распространяется под лицензией **MIT**. Полный текст см. в файле [`LICENSE`](LICENSE).
+Omega-Waf распространяется под лицензией **MIT**. Полный текст см. в файле [`LICENSE`](../../../LICENSE).
 
 ---
 

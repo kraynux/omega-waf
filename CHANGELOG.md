@@ -35,6 +35,17 @@ en production, donc toujours signalés explicitement, même mineurs.
   `www-data`/`http`/`lighttpd`, tableau des droits (écriture pour la blocklist, les deux
   journaux et les compteurs ; lecture seule pour `waf_rules_dir`), échec d'écriture
   silencieux et commande de vérification, unité systemd restreinte.
+- README en **17 langues** sous `docs/translation/<code>/README.md` (format commun des outils
+  omega) ; les anciens `README.en/es/ru/zh-CN.md` de la racine y sont déplacés, 12 langues
+  ajoutées. Site en 17 langues (index et readme.html).
+- **Mode log-only d'omega-serv respecté** (2026-11-10) : le serveur injecte `omega_waf_mode` ; en
+  `log-only`, le script ne pose plus aucun ban (avant : il écrivait sa liste noire et la ligne
+  `AJOUT BLOCKLIST`, que le jail fail2ban `omega-waf-blocklist-sync` transformait en ban réseau alors
+  que le serveur neutralisait le 451). Une ligne `BAN EVITE (mode log-only)` le trace. En lighttpd
+  natif (variable absente), comportement inchangé.
+- **Plus de `AJOUT BLOCKLIST` sans ban écrit** : si la liste noire ne peut pas être écrite (droits,
+  disque), une ligne `ECHEC BLOCKLIST` remplace `AJOUT BLOCKLIST` (fail2ban ne bannit plus un ban
+  absent de la liste).
 - **Comportement par défaut** : une adresse de `never_auto_block` n'est plus jamais
   ajoutée à la liste noire ni escaladée par la récidive. La requête elle-même reste
   refusée et journalisée comme avant.

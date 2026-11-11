@@ -17,8 +17,9 @@ Page officielle : [OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/)
 [![Lua](https://img.shields.io/badge/Lua-5.1%20%2F%20LuaJIT-blue.svg)](https://www.lua.org/)
 [![Compatible](https://img.shields.io/badge/Compatible-lighttpd%20mod__magnet%20%7C%20omega--serv-cyan.svg)](#compatibilité)
 
-**Langues:**
-[Français](README.md) · [English](README.en.md) · [Español](README.es.md) · [Русский](README.ru.md) · [中文](README.zh-CN.md)
+🌐 Documentation disponible en **17 langues**.  
+**Langues :**  
+<img src="https://flagcdn.com/w20/fr.png" alt="Français" style="height:14px;"> [Français](README.md) · <img src="https://flagcdn.com/w20/gb.png" alt="English" style="height:14px;"> [English](docs/translation/en/README.md) · <img src="https://flagcdn.com/w20/es.png" alt="Español" style="height:14px;"> [Español](docs/translation/es/README.md) · <img src="https://flagcdn.com/w20/br.png" alt="Português (Brasil)" style="height:14px;"> [Português (Brasil)](docs/translation/pt-BR/README.md) · <img src="https://flagcdn.com/w20/it.png" alt="Italiano" style="height:14px;"> [Italiano](docs/translation/it/README.md) · <img src="https://flagcdn.com/w20/de.png" alt="Deutsch" style="height:14px;"> [Deutsch](docs/translation/de/README.md) · <img src="https://flagcdn.com/w20/nl.png" alt="Nederlands" style="height:14px;"> [Nederlands](docs/translation/nl/README.md) · <img src="https://flagcdn.com/w20/pl.png" alt="Polski" style="height:14px;"> [Polski](docs/translation/pl/README.md) · <img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="height:14px;"> [Русский](docs/translation/ru/README.md) · <img src="https://flagcdn.com/w20/cn.png" alt="中文" style="height:14px;"> [中文](docs/translation/zh-CN/README.md) · <img src="https://flagcdn.com/w20/vn.png" alt="Tiếng Việt" style="height:14px;"> [Tiếng Việt](docs/translation/vi/README.md) · <img src="https://flagcdn.com/w20/th.png" alt="ไทย" style="height:14px;"> [ไทย](docs/translation/th/README.md) · <img src="https://flagcdn.com/w20/id.png" alt="Bahasa Indonesia" style="height:14px;"> [Bahasa Indonesia](docs/translation/id/README.md) · <img src="https://flagcdn.com/w20/jp.png" alt="日本語" style="height:14px;"> [日本語](docs/translation/ja/README.md) · <img src="https://flagcdn.com/w20/kr.png" alt="한국어" style="height:14px;"> [한국어](docs/translation/ko/README.md) · <img src="https://flagcdn.com/w20/in.png" alt="हिन्दी" style="height:14px;"> [हिन्दी](docs/translation/hi/README.md) · <img src="https://flagcdn.com/w20/ae.png" alt="العربية" style="height:14px;"> [العربية](docs/translation/ar/README.md)
 
 ---
 
@@ -234,6 +235,8 @@ Deux rate limiters indépendants, basés sur des compteurs en mémoire persisté
 L'escalade progressive (`record_suspicious_hit`) est un mécanisme séparé du rate limiting : chaque détection non critique (chemin sensible non récidivant, User-Agent scanner, hit mineur sur le corps POST) incrémente un compteur par IP (clé `susp:<ip>`) sur une fenêtre de `suspicious_window` secondes. Une fois `suspicious_threshold` hits atteints dans cette fenêtre, l'IP est ajoutée à la liste noire définitive — évite un bannissement sec sur un unique faux positif, tout en bannissant la récidive.
 
 **Réseaux jamais bannis** : une adresse de `never_auto_block` (hôte local, Tailscale `100.64.0.0/10`, réseaux locaux IPv4/IPv6, forme IPv4-mappée-IPv6 comprise) ne déclenche jamais d'escalade ni d'ajout à la liste noire ; un ban évité est tracé par une ligne `BAN EVITE` dans `blocklist_log` (jamais `AJOUT BLOCKLIST`, relue par omega-jail). Comparaison CIDR en Lua portable, de 5.1 à 5.5 et LuaJIT.
+
+**Mode log-only d'omega-serv** : quand le WAF d'omega-serv est en `log-only`, le script ne pose aucun ban (ni liste noire, ni ligne `AJOUT BLOCKLIST`, donc aucun ban réseau par fail2ban) ; une ligne `BAN EVITE` le trace. Si la liste noire ne peut pas être écrite, une ligne `ECHEC BLOCKLIST` remplace `AJOUT BLOCKLIST`.
 
 ---
 

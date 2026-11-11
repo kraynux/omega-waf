@@ -85,6 +85,12 @@ local never_auto_block       = omega_never_auto_block or {
   "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16",
   "fc00::/7", "fe80::/10",
 }
+-- Mode du WAF d'omega-serv, injecté par le serveur (table globale
+-- `omega_waf_mode` : "block" ou "log-only"). En log-only, aucun ban n'est
+-- posé : ni ajout à la blocklist, ni ligne `AJOUT BLOCKLIST` (que fail2ban
+-- transformerait en ban réseau) ; une ligne `BAN EVITE` le trace. En lighttpd
+-- natif (variable absente) : comportement inchangé.
+local waf_log_only           = (omega_waf_mode ~= nil and omega_waf_mode ~= "block")
 -- Bascule entre logs texte simples et logs JSON.
 local use_json_logs          = false
 -- Score minimum pour qu'une requête POST soit bloquée.
@@ -554,9 +560,18 @@ function add_to_blocklist(ip, reason)
     log_line(blocklist_log, string.format("[%s] BAN EVITE ip=%s reason=%s (reseau jamais banni)", now_str(), tostring(ip), tostring(reason or "")))
     return
   end
+  if waf_log_only then
+    log_line(blocklist_log, string.format("[%s] BAN EVITE ip=%s reason=%s (mode log-only)", now_str(), tostring(ip), tostring(reason or "")))
+    return
+  end
   local blocked = load_blocklist()
   if blocked[ip] then return end
-  append_file(blocklist_file, string.format("# %s - %s\n%s\n", now_str(), tostring(reason or ""), tostring(ip)))
+  if not append_file(blocklist_file, string.format("# %s - %s\n%s\n", now_str(), tostring(reason or ""), tostring(ip))) then
+    -- Jamais `AJOUT BLOCKLIST` si le ban n'a pas été écrit : fail2ban bannirait au niveau réseau un ban
+    -- que la blocklist n'a pas (fichier en lecture seule, disque plein, droits).
+    log_line(blocklist_log, string.format("[%s] ECHEC BLOCKLIST ip=%s reason=%s (écriture impossible : %s)", now_str(), tostring(ip), tostring(reason or ""), tostring(blocklist_file)))
+    return
+  end
   blocked[ip] = true
   -- Mise à jour immédiate du cache en mémoire : un ban déclenché par le
   -- WAF lui-même reste effectif sans attendre le refresh temporel.

@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2026 kraynux - kraynux@proton.me - MIT License (see LICENSE file) -->
+<!-- Copyright (c) 2026 kraynux - kraynux@proton.me - Licence MIT (voir fichier LICENSE) -->
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/kraynux/kraynux/refs/heads/main/docs/assets/omega-waf.png" alt="Omega-Waf" width="384">
@@ -10,15 +10,16 @@
 
 > Built by [kraynux](https://github.com/kraynux) for [Omega-Server](https://kraynux.snake-mackarel.ts.net)   
 
-Official page: [OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/)
+Official page: [OMEGA-WAF](https://kraynux.snake-mackarel.ts.net/omega-waf/translation/en/)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../../LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Linux-informational.svg)](https://www.linux.org/)
 [![Lua](https://img.shields.io/badge/Lua-5.1%20%2F%20LuaJIT-blue.svg)](https://www.lua.org/)
 [![Compatible](https://img.shields.io/badge/Compatible-lighttpd%20mod__magnet%20%7C%20omega--serv-cyan.svg)](#compatibility)
 
-**Languages:**
-[Français](README.md) · [English](README.en.md) · [Español](README.es.md) · [Русский](README.ru.md) · [中文](README.zh-CN.md)
+🌐 Documentation available in **17 languages**.  
+**Languages:**  
+<img src="https://flagcdn.com/w20/fr.png" alt="Français" style="height:14px;"> [Français](../../../README.md) · <img src="https://flagcdn.com/w20/gb.png" alt="English" style="height:14px;"> [English](README.md) · <img src="https://flagcdn.com/w20/es.png" alt="Español" style="height:14px;"> [Español](../es/README.md) · <img src="https://flagcdn.com/w20/br.png" alt="Português (Brasil)" style="height:14px;"> [Português (Brasil)](../pt-BR/README.md) · <img src="https://flagcdn.com/w20/it.png" alt="Italiano" style="height:14px;"> [Italiano](../it/README.md) · <img src="https://flagcdn.com/w20/de.png" alt="Deutsch" style="height:14px;"> [Deutsch](../de/README.md) · <img src="https://flagcdn.com/w20/nl.png" alt="Nederlands" style="height:14px;"> [Nederlands](../nl/README.md) · <img src="https://flagcdn.com/w20/pl.png" alt="Polski" style="height:14px;"> [Polski](../pl/README.md) · <img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="height:14px;"> [Русский](../ru/README.md) · <img src="https://flagcdn.com/w20/cn.png" alt="中文" style="height:14px;"> [中文](../zh-CN/README.md) · <img src="https://flagcdn.com/w20/vn.png" alt="Tiếng Việt" style="height:14px;"> [Tiếng Việt](../vi/README.md) · <img src="https://flagcdn.com/w20/th.png" alt="ไทย" style="height:14px;"> [ไทย](../th/README.md) · <img src="https://flagcdn.com/w20/id.png" alt="Bahasa Indonesia" style="height:14px;"> [Bahasa Indonesia](../id/README.md) · <img src="https://flagcdn.com/w20/jp.png" alt="日本語" style="height:14px;"> [日本語](../ja/README.md) · <img src="https://flagcdn.com/w20/kr.png" alt="한국어" style="height:14px;"> [한국어](../ko/README.md) · <img src="https://flagcdn.com/w20/in.png" alt="हिन्दी" style="height:14px;"> [हिन्दी](../hi/README.md) · <img src="https://flagcdn.com/w20/ae.png" alt="العربية" style="height:14px;"> [العربية](../ar/README.md)
 
 ---
 
@@ -235,6 +236,8 @@ Progressive escalation (`record_suspicious_hit`) is a mechanism separate from ra
 
 **Networks never banned**: an address in `never_auto_block` (localhost, Tailscale `100.64.0.0/10`, local IPv4/IPv6 networks, IPv4-mapped IPv6 form included) never triggers escalation nor a blocklist addition; a skipped ban is traced by a `BAN EVITE` line in `blocklist_log` (never `AJOUT BLOCKLIST`, which omega-jail reads). Portable Lua CIDR matching, from 5.1 to 5.5 and LuaJIT.
 
+**omega-serv log-only mode**: when omega-serv's WAF is in `log-only`, the script sets no ban (no blocklist entry, no `AJOUT BLOCKLIST` line, so no network ban by fail2ban); a `BAN EVITE` line records it. If the blocklist cannot be written, an `ECHEC BLOCKLIST` line replaces `AJOUT BLOCKLIST`.
+
 ---
 
 ## Persistence
@@ -320,7 +323,7 @@ Making this script compatible with one of these servers would require writing a 
 
 ## License
 
-Omega-Waf is distributed under the **MIT** license. See the [`LICENSE`](LICENSE) file for the full text.
+Omega-Waf is distributed under the **MIT** license. See the [`LICENSE`](../../../LICENSE) file for the full text.
 
 ---
 
